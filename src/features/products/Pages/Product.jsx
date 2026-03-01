@@ -1,31 +1,47 @@
 import { Tabs } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProductTable from '../components/ProductTable'
 import ProductForm from '../components/ProductForm'
+import axios from 'axios'
+import API from '../../shared/utils/apiConfig'
 
 function Product() {
     
     const [tabState, setTabState] = useState('list')
     const [editProduct, setEditProduct] = useState({})
+    const [products, setProducts] = useState([])
+
+    const getProducts = () => {
+        axios
+            .get(API.products)
+            .then((res) => {
+                setProducts(res.data)
+            })
+    }
+
+    useEffect(() => {
+        getProducts()
+    }, [])
 
     const tabChange = (tab) => {
         setTabState(tab)
+        getProducts()
     }
     const items = [
         {
             key: 'list',
             label: 'List',
-            children: <ProductTable setEditProduct={setEditProduct} tabChange={tabChange} />
+            children: <ProductTable products={products}  setEditProduct={setEditProduct} tabChange={tabChange} />
         }, 
         {
             key: 'new',
             label: 'New',
-            children: <ProductForm tabState={tabState} editProduct={editProduct} setEditProduct={setEditProduct} tabChange={tabChange}/>
+            children: <ProductForm get={getProducts} tabState={tabState} editProduct={editProduct} setEditProduct={setEditProduct} tabChange={tabChange}/>
         } ,
         {
             key: 'edit',
             label: 'Edit',
-            children:<ProductForm  tabState={tabState} editProduct={editProduct} setEditProduct={setEditProduct} tabChange={tabChange} />,
+            children:<ProductForm get={getProducts} tabState={tabState} editProduct={editProduct} setEditProduct={setEditProduct} tabChange={tabChange} />,
             disabled: true
         }
     ]

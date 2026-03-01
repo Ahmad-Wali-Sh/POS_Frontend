@@ -1,10 +1,17 @@
 import { Table } from 'antd'
-import useProducts from '../../store/products/useProducts'
-import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useEffect, useState } from 'react'
 import API from '../../shared/utils/apiConfig'
 
-function ProductTable({tabChange, setEditProduct}) {
+function ProductTable({ tabChange, setEditProduct, products }) {
+
+    const [categories, setCategories] = useState()
+    useEffect(() => {
+        axios.get(API.categories)
+            .then((res) => {
+                setCategories(res.data)
+            })
+    }, [])
 
     const columns = [
         {
@@ -23,10 +30,15 @@ function ProductTable({tabChange, setEditProduct}) {
             title: 'Price'
         },
         {
-            key: 'category',
-            dataIndex: 'category',
+            key: 'category_id',
+            dataIndex: 'category_id',
             title: 'Category',
-            render: (category) => <div className='rounded bg-blue-300 w-fit p-2'>{category}</div>
+            render: (category_id) => {
+                let categoryFound = categories?.find((category) => {
+                    return category.id == category_id
+                })
+                return <div className='rounded bg-blue-300 w-fit p-2'>{categoryFound?.name}</div>
+            }
         },
         {
             key: 'quantity',
@@ -38,18 +50,11 @@ function ProductTable({tabChange, setEditProduct}) {
             key: 'image',
             dataIndex: 'image',
             title: 'Image',
-            render: (image) => <img src={image} className='w-20 rounded-xl shadow-2xl'/>
+            render: (image) => <img src={image} className='w-20 rounded-xl shadow-2xl' />
         },
     ]
 
-    const [products, setProducts] = useState([])
-    useEffect(() => {
-        axios
-            .get(API.products)
-            .then((res) => {
-                setProducts(res.data)
-            })
-    }, [])
+
 
 
     return (
@@ -60,7 +65,7 @@ function ProductTable({tabChange, setEditProduct}) {
                     setEditProduct(record)
                 }
             }
-        }} columns={columns}  dataSource={products} scroll={{ y: 350 }} size='medium' sticky />
+        }} columns={columns} dataSource={products} scroll={{ y: 350 }} size='medium' sticky />
     )
 }
 

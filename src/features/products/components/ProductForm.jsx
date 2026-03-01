@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import API from '../../shared/utils/apiConfig'
 
-function ProductForm({ tabChange, editProduct, setEditProduct, tabState }) {
+function ProductForm({ tabChange, editProduct, setEditProduct, tabState, get }) {
 
     const [form] = Form.useForm()
 
@@ -52,9 +52,16 @@ function ProductForm({ tabChange, editProduct, setEditProduct, tabState }) {
             name='product'
             onFinish={(data) => {
                 if (tabState == 'new') {
-                    addProduct(data)
-                    toast.success('New Data Has Been Submited')
-                    tabChange('list')
+                    axios
+                        .post(API.products, data)
+                        .then(() => {
+                            toast.success('New Data Has Been Submited')
+                            tabChange('list')
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                            toast.error(err)
+                        })
                 }
                 else if (tabState == 'edit') {
                     data.id = editProduct.id
@@ -80,7 +87,7 @@ function ProductForm({ tabChange, editProduct, setEditProduct, tabState }) {
                     </Form.Item>
                     <Form.Item
                         label='Category'
-                        name='category'
+                        name='category_id'
                     >
                         <Select showSearch options={categories}>
                         </Select>
@@ -126,7 +133,7 @@ function ProductForm({ tabChange, editProduct, setEditProduct, tabState }) {
                                     title: '',
                                     price: '',
                                     quantity: '',
-                                    category: '',
+                                    category_id: '',
                                     image: ''
                                 })
                             } else if (tabState == 'edit') {

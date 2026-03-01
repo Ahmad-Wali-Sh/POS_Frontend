@@ -1,0 +1,15 @@
+@import "tailwindcss"; 
+
+@font-face {
+    font-family: 'FontBold';
+    src: url('fonts/BBHBogle-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'FontNormal' ;
+    src: url('fonts/Tinos-Regular.ttf');
+}
+
+* {
+    font-family: 'FontNormal';
+}

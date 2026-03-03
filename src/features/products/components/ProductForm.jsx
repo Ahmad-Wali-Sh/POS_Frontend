@@ -28,14 +28,12 @@ function ProductForm({ tabChange, editProduct, setEditProduct, tabState, get }) 
             setEditProduct({})
         }
     }, [tabState])
-
-
     const [categories, setCategories] = useState([])
     useEffect(() => {
         axios.get(API.categories)
             .then((res) => {
                 const options = res.data.map((option, index) => {
-                    return { 
+                    return {
                         value: option.id,
                         label: `${index + 1}.${option.name} - ${option.description}`
                     }
@@ -43,31 +41,50 @@ function ProductForm({ tabChange, editProduct, setEditProduct, tabState, get }) 
                 setCategories(options)
             })
     }, [])
+    const deleteProduct = (id) => {
+        axios
+            .delete(`${API.products}/${id}`)
+            .then(() => {
+                toast.success('Data Has Been Deleted Succesfully.')
+                tabChange('list')
+            })
+    }
+    const updateProduct = (id, data) => {
+        axios
+            .put(`${API.products}/${id}`, data)
+            .then((res) => {
+                console.log(res.data)
+                toast.info('Data Has been Updated')
+                tabChange('list')
+            })
+            .catch((error) => {
+                toast.error('Cruption on Edit... Server Error')
+            })
+    }
 
-
-    const { addProduct, deleteProduct, updateProduct } = useProducts()
+    const addProduct = (data) => {
+        axios
+            .post(API.products, data)
+            .then(() => {
+                toast.success('New Data Has Been Submited')
+                tabChange('list')
+            })
+            .catch((err) => {
+                console.log(err)
+                toast.error(err)
+            })
+    }
     return (
         <Form
             form={form}
             name='product'
             onFinish={(data) => {
                 if (tabState == 'new') {
-                    axios
-                        .post(API.products, data)
-                        .then(() => {
-                            toast.success('New Data Has Been Submited')
-                            tabChange('list')
-                        })
-                        .catch((err) => {
-                            console.log(err)
-                            toast.error(err)
-                        })
+                    addProduct(data)
                 }
                 else if (tabState == 'edit') {
                     data.id = editProduct.id
                     updateProduct(editProduct?.id, data)
-                    toast.info('Data Has been Updated')
-                    tabChange('list')
                 }
             }}
         >
@@ -120,7 +137,7 @@ function ProductForm({ tabChange, editProduct, setEditProduct, tabState, get }) 
                                 deleteProduct(editProduct?.id)
                                 tabChange('list')
                             }}
-                            >
+                        >
                             <Button type='primary' danger>
                                 Delete
                             </Button>
